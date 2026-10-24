@@ -1,0 +1,29 @@
+# Versions used for the v1.0.0 Windows x64 build (Python 3.11.4).
+-r requirements-build.txt
+altgraph==0.17.5
+bottle==0.13.4
+brotli==1.2.1
+certifi==2026.10.19
+cffi==2.1.1
+charset-normalizer==3.5.2
+clr_loader==0.3.1
+idna==3.20
+imageio-ffmpeg==0.6.0
+mutagen==1.48.1
+packaging==26.3
+pefile==2024.8.26
+proxy_tools==0.1.0
+pycparser==3.12
+pycryptodomex==3.24.1
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.9
+pythonnet==3.2.1
+pywebview==6.2.1
+pywin32-ctypes==0.2.3
+requests==2.34.2
+setuptools==65.5.0
+typing_extensions==4.16.0
+urllib3==2.8.0
+websockets==17.3
+yt-dlp==2026.10.21
+yt-dlp-ejs==0.8.0

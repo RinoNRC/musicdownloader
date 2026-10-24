@@ -219,6 +219,29 @@ class DesktopAPI:
                 return {"ok": False, "error": "Дождитесь завершения текущей операции."}
             if not self._basket:
                 return {"ok": False, "error": "Сначала выберите треки для скачивания."}
+        configured_ffmpeg = os.environ.get("IMAGEIO_FFMPEG_EXE", "")
+        if getattr(sys, "frozen", False) and not (configured_ffmpeg and Path(configured_ffmpeg).is_file()):
+            cache = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "MusicDownloader" / "tools"
+            consent = cache / "download-consent"
+            if not consent.is_file():
+                if self._window is None or not self._window.create_confirmation_dialog(
+                    "Установка FFmpeg",
+                    "Для преобразования MP3 нужен FFmpeg. Скачать его напрямую с PyPI (около 30 МБ)? "
+                    "Это стороннее ПО под лицензией GPLv3+. Оно не включено в архив приложения. "
+                    "Загрузка выполняется один раз. При отказе можно продолжить поиск музыки.",
+                ):
+                    return {"ok": False, "error": "Установка FFmpeg отменена. Поиск музыки остаётся доступен."}
+                try:
+                    cache.mkdir(parents=True, exist_ok=True)
+                    consent.touch()
+                except OSError as error:
+                    with self._lock:
+                        return self._error(error)
+        with self._lock:
+            if not self._available():
+                return {"ok": False, "error": "Дождитесь завершения текущей операции."}
+            if not self._basket:
+                return {"ok": False, "error": "Сначала выберите треки для скачивания."}
             folder = Path(self._settings["folder"]).expanduser()
             if not folder.is_absolute():
                 return {"ok": False, "error": "Укажите полный путь к папке в настройках."}

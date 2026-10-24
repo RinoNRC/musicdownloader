@@ -16,14 +16,32 @@
 
 Повышение битрейта не восстанавливает качество, отсутствующее в исходной записи.
 
-## Требования
+## Готовая версия для Windows (без Python)
+
+Скачайте **`MusicDrive-1.0.0-windows-x64.zip`** на странице [GitHub Releases](https://github.com/RinoNRC/musicdownloader/releases/latest).
+
+1. Распакуйте **весь архив** в отдельную папку. Не запускайте EXE прямо из ZIP.
+2. Запустите **`MusicDrive.exe`**. Соседние `MusicDriveWorker.exe` и папка `_internal` нужны для работы — не удаляйте их.
+3. При первом скачивании разрешите установку FFmpeg: приложение загрузит около **30 МБ напрямую с PyPI**, проверит SHA-256 и сохранит инструмент в `%LOCALAPPDATA%\MusicDownloader\tools`. FFmpeg не включён в ZIP и распространяется его поставщиком под GPLv3+. При отказе поиск продолжает работать.
+
+Нужны **Windows 10/11 x64** и **Microsoft Edge WebView2 Runtime**. Установка Python, pip и ручная настройка FFmpeg не требуются. Вместо загрузки FFmpeg можно указать путь к уже установленному EXE через переменную среды `IMAGEIO_FFMPEG_EXE` перед запуском.
+
+Сборка не подписана цифровым сертификатом: Windows может показать предупреждение SmartScreen. Проверяйте адрес репозитория и контрольную сумму из `SHA256SUMS.txt`; не отключайте антивирус. Проверка ниже подтверждает целостность, а не подпись издателя:
+
+```powershell
+Get-FileHash .\MusicDrive-1.0.0-windows-x64.zip -Algorithm SHA256
+```
+
+Для обновления закройте приложение и распакуйте новый релиз в новую папку. Пользовательские настройки и загруженный FFmpeg сохраняются отдельно. `update.bat` относится только к запуску из исходников.
+
+## Требования для запуска из исходников
 
 - Windows и **Python 3.10 или новее**, установленный с добавлением в PATH, либо доступный через `py -3`.
 - Подключение к интернету для установки зависимостей, поиска и загрузки.
 - **Microsoft Edge WebView2 Runtime** (обычно уже установлен в Windows 10/11). Если окно не открывается, установите Evergreen Runtime с [официального сайта Microsoft](https://developer.microsoft.com/microsoft-edge/webview2/), затем повторите запуск.
-- Зависимости из `requirements.txt`: `pywebview`, `yt-dlp[default]`, `imageio-ffmpeg`, `Unidecode`.
+- Зависимости из `requirements.txt`: `pywebview`, `yt-dlp[default]`, `imageio-ffmpeg`.
 
-`imageio-ffmpeg` поставляет FFmpeg: **отдельно устанавливать FFmpeg не нужно**. Это Python-приложение, для запуска которого нужен Python.
+При запуске из исходников `imageio-ffmpeg` поставляет FFmpeg: **отдельно устанавливать его не нужно**. Python нужен только для исходников, но не для готового ZIP-релиза.
 
 ## Первый запуск
 
@@ -97,6 +115,29 @@ python -m unittest discover -s tests -v
 ```powershell
 .\.venv\Scripts\python.exe tests\webview_smoke.py
 ```
+
+## Сборка Windows-релиза
+
+На Windows x64 с Python 3.11 и созданным `.venv` запустите **`build.bat`**. Он устанавливает зависимости сборки, запускает тесты, собирает два EXE через PyInstaller, собирает лицензии и создаёт ZIP с SHA-256 в `dist`. Для повторения набора версий первого релиза используйте `requirements-release.txt`.
+
+Ручные команды:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-release.txt
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean MusicDrive.spec
+.\.venv\Scripts\python.exe scripts\collect_licenses.py
+.\.venv\Scripts\python.exe scripts\package_release.py
+```
+
+Проверка именно собранного приложения (откроет тестовое окно, скачает FFmpeg с PyPI во временную папку и преобразует локальный тестовый WAV; музыку из интернета и пользовательские настройки не затрагивает):
+
+```powershell
+Start-Process -Wait .\dist\MusicDrive\MusicDrive.exe -ArgumentList '--self-test', 'C:\Temp\musicdrive-report.json'
+Get-Content C:\Temp\musicdrive-report.json
+```
+
+FFmpeg, Unidecode и Mutagen исключены из бинарной сборки. Не добавляйте их в архив вручную; сведения о сторонних компонентах находятся в `THIRD_PARTY_NOTICES.md` и `licenses`.
 
 ## Структура
 

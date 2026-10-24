@@ -15,9 +15,9 @@ from pathlib import Path
 from typing import Callable
 from urllib.parse import urlparse
 
-import imageio_ffmpeg
 import yt_dlp
-from unidecode import unidecode
+
+from runtime_ffmpeg import get_ffmpeg, transliterate
 
 
 APP_DIR = Path(os.environ.get("LOCALAPPDATA", Path.home() / ".local" / "share")) / "MusicDownloader"
@@ -78,7 +78,7 @@ def save_settings(settings: dict, path: Path | None = None) -> None:
 
 def safe_filename(title: str, ascii_names: bool = False) -> str:
     if ascii_names:
-        title = unidecode(title)
+        title = transliterate(title)
     title = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", title)
     title = re.sub(r"\s+", " ", title).strip(" .")[:120].rstrip(" .")
     if not title:
@@ -196,9 +196,12 @@ def fetch_audio(
 ) -> tuple[Path, dict]:
     messages = queue.Queue()
     popen_options = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {"start_new_session": True}
+    command = ([str(Path(sys.executable).with_name("MusicDriveWorker.exe"))]
+               if getattr(sys, "frozen", False)
+               else [sys.executable, str(Path(__file__).with_name("download_worker.py"))])
     with (temporary / "download.log").open("wb") as log:
         process = subprocess.Popen(
-            [sys.executable, str(Path(__file__).with_name("download_worker.py"))],
+            command,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=log,
             text=True, encoding="utf-8", **popen_options,
         )
@@ -266,7 +269,7 @@ def download_track(
     if cancel.is_set():
         raise Cancelled()
     folder.mkdir(parents=True, exist_ok=True)
-    ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+    ffmpeg = get_ffmpeg(cancel, progress)
 
     # Temporary media stays off the USB drive; only the completed MP3 is copied there.
     with tempfile.TemporaryDirectory(prefix="musicdownloader-") as temporary:
@@ -329,7 +332,8 @@ def friendly_error(error: Exception) -> str:
     text = re.sub(r"\x1b\[[0-9;]*m", "", str(error))
     lower = text.lower()
     if any(word in lower for word in ("sign in", "bot", "javascript", "js runtime", "challenge", "403")):
-        return ("Площадка ограничила доступ. Запустите update.bat; для YouTube установите Deno "
+        update = "Установите свежий релиз с GitHub" if getattr(sys, "frozen", False) else "Запустите update.bat"
+        return (f"Площадка ограничила доступ. {update}; для YouTube установите Deno "
                 "(инструкция в README), затем перезапустите приложение. Можно попробовать SoundCloud.\n\n" + text)
     if any(word in lower for word in ("timed out", "unable to download", "connection", "getaddrinfo")):
         return "Не удалось подключиться к площадке. Проверьте интернет и доступность сайта.\n\n" + text

@@ -29,4 +29,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    if len(sys.argv) == 3 and sys.argv[1] == "--self-test":
+        from release_selftest import run
+
+        run(sys.argv[2])
+    else:
+        main()
