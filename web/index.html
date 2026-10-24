@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Music Drive</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M3 10v4m4-7v10m5-14v18m5-15v12m4-8v4"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M9.5 3h5l.7 2.4 2 .9 2.2-.7 2.5 4.3-1.6 1.8v2.5l1.6 1.8-2.5 4.3-2.2-.7-2 .9-.7 2.5h-5l-.7-2.5-2-.9-2.2.7-2.5-4.3 1.6-1.8v-2.5L2.1 9.9l2.5-4.3 2.2.7 2-.9z" transform="translate(1 0) scale(.9)"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h8M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v1M3 7h17a1 1 0 0 1 1 1l-2 11H4L2 9a2 2 0 0 1 1-2Z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M9 17V5l11-2v12M9 9l11-2"/><ellipse cx="5.5" cy="18" rx="3.5" ry="3"/><ellipse cx="16.5" cy="16" rx="3.5" ry="3"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M4 7h16l1 14H3L4 7Zm4 0V6a4 4 0 0 1 8 0v1M8 10h.01M16 10h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+    <symbol id="i-error" viewBox="0 0 24 24"><path d="m10.3 4-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3l-8-14a2 2 0 0 0-3.4 0ZM12 9v5m0 3h.01"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><path d="M9 5H5v16h14V5h-4M9 3h6v4H9zM8 12h8M8 16h6"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 3h7v7m0-7L10 14M10 4H4v16h16v-6"/></symbol>
+  </svg>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Навигация">
+      <a class="brand" href="#search-panel" aria-label="Music Drive — поиск музыки">
+        <span class="brand-mark"><svg class="icon"><use href="#i-wave"/></svg></span>
+        <span class="brand-type">MUSIC<span>DRIVE<span class="brand-dot">.</span></span></span>
+      </a>
+      <div class="sidebar-section-label">ВАШЕ ПРОСТРАНСТВО</div>
+      <nav class="navigation">
+        <button class="nav-button is-active" id="nav-search" type="button" aria-current="page"><svg class="icon"><use href="#i-search"/></svg><span>Поиск музыки</span><span class="nav-active-dot"></span></button>
+        <button class="nav-button" id="nav-settings" type="button"><svg class="icon"><use href="#i-settings"/></svg><span>Настройки</span></button>
+        <button class="nav-button" id="nav-logs" type="button"><svg class="icon"><use href="#i-list"/></svg><span>Журнал событий</span><span class="log-indicator" id="log-indicator" hidden></span></button>
+      </nav>
+      <div class="sidebar-note"><span class="tiny-line"></span><p>Находите любимое.<br>Сохраняйте себе.</p></div>
+      <div class="sidebar-bottom">
+        <button class="folder-card" id="sidebar-folder" type="button" title="Открыть папку загрузок" disabled>
+          <span class="folder-card-top"><svg class="icon"><use href="#i-folder"/></svg><span>ПАПКА ЗАГРУЗОК</span><svg class="icon small"><use href="#i-external"/></svg></span>
+          <span class="folder-path" id="folder-path">Укажите в настройках</span>
+        </button>
+        <div class="app-signature"><span class="connection-dot" id="connection-dot"></span><span id="connection-label">Локальное приложение</span><span class="version-label">01</span></div>
+      </div>
+    </aside>
+
+    <main class="workspace" id="search-panel">
+      <div class="workspace-topline"><span><span class="tiny-dot"></span> ВАША МУЗЫКА, ВАШ РИТМ</span><span class="file-format">MP3 <span>↗</span></span></div>
+      <header class="page-heading"><h1>Хорошая музыка.<br><span>Всегда под рукой.</span></h1><p>Найдите трек. Добавьте в подборку. Сохраните.</p></header>
+      <div class="bridge-banner" id="bridge-banner" role="status" hidden><svg class="icon"><use href="#i-info"/></svg><span id="bridge-message">Запустите через start.bat, чтобы искать и скачивать музыку.</span></div>
+      <section class="search-section" aria-label="Поиск треков">
+        <div class="source-line"><span class="field-caption">ГДЕ ИЩЕМ</span><div class="source-control" role="group" aria-label="Источник поиска"><button class="source-button is-selected" id="source-youtube" type="button" data-source="youtube" aria-pressed="true"><span class="source-logo youtube-logo">▶</span>YouTube</button><button class="source-button" id="source-soundcloud" type="button" data-source="soundcloud" aria-pressed="false"><span class="source-logo cloud-logo">≋</span>SoundCloud</button></div></div>
+        <form class="search-form" id="search-form" autocomplete="off">
+          <svg class="icon search-icon"><use href="#i-search"/></svg>
+          <label class="sr-only" for="search-input">Название трека или исполнитель</label>
+          <input id="search-input" name="query" type="text" role="searchbox" placeholder="Трек или исполнитель" maxlength="1000" spellcheck="false" enterkeyhint="search" disabled>
+          <button class="search-submit" id="search-submit" type="submit" disabled><span id="search-button-text">Найти</span><svg class="icon" id="search-button-icon"><use href="#i-arrow"/></svg><span class="spinner" id="search-spinner" hidden></span></button>
+        </form>
+        <div class="search-hint"><span>Вся музыка начинается с поиска</span><kbd>Enter ↵</kbd></div>
+      </section>
+
+      <section class="results-section" aria-labelledby="results-title">
+        <div class="section-heading"><div class="section-title-group"><h2 id="results-title">Результаты поиска</h2><span class="count-badge" id="results-count">0</span></div><button class="text-button" id="select-all" type="button" disabled>Выбрать все</button></div>
+        <div class="results-context" id="results-context" hidden></div>
+        <div class="results-scroll" id="results-scroll" tabindex="0" aria-label="Список найденных треков" aria-busy="false">
+          <div class="empty-state search-empty" id="search-empty">
+            <div class="empty-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-cover art-cover-back"><svg class="icon"><use href="#i-wave"/></svg></div><div class="art-cover art-cover-front"><svg class="icon"><use href="#i-note"/></svg><span class="art-cover-line"></span></div><span class="art-spark spark-one">+</span><span class="art-spark spark-two">+</span></div>
+            <h3 id="empty-title">Что будем слушать?</h3><p id="empty-description">Введите название трека или имя исполнителя.<br>Ваша следующая находка — в одном поиске.</p>
+            <button class="empty-action text-button" id="empty-action" type="button">Начать поиск <svg class="icon small"><use href="#i-arrow"/></svg></button>
+          </div>
+          <div class="track-list" id="results-list" role="list" hidden></div>
+        </div>
+        <div class="results-footnote"><svg class="icon small"><use href="#i-info"/></svg><span>Скачивайте только контент, на который у вас есть права.</span></div>
+      </section>
+    </main>
+
+    <aside class="basket-panel" aria-labelledby="basket-title">
+      <div class="basket-heading"><div class="basket-eyebrow">СОБЕРИТЕ СВОЙ НАБОР</div><div class="basket-title-line"><h2 id="basket-title">Подборка</h2><span class="count-badge" id="basket-count">0</span></div><p>Всё, что хочется оставить.</p></div>
+      <div class="basket-toolbar"><span id="basket-duration">Пока ни одного трека</span><button class="icon-button" id="clear-basket" type="button" aria-label="Очистить подборку" title="Очистить подборку" disabled><svg class="icon small"><use href="#i-trash"/></svg></button></div>
+      <div class="basket-scroll" id="basket-scroll" tabindex="0" aria-label="Треки в подборке">
+        <div class="basket-empty" id="basket-empty"><div class="basket-empty-icon"><svg class="icon"><use href="#i-bag"/></svg><span>+</span></div><h3>Здесь будет ваша музыка</h3><p>Нажмите <span class="inline-plus">+</span> рядом с треком,<br>чтобы добавить его в подборку.</p></div>
+        <div class="basket-list" id="basket-list" role="list" hidden></div>
+      </div>
+      <div class="basket-footer"><div class="export-label"><span class="export-icon"><svg class="icon"><use href="#i-wave"/></svg></span><div><strong>Готово к сохранению</strong><span id="export-quality">MP3 · 192 кбит/с</span></div><button class="icon-button" id="basket-settings" type="button" aria-label="Настроить качество загрузки" title="Настройки качества"><svg class="icon small"><use href="#i-settings"/></svg></button></div></div>
+    </aside>
+
+    <footer class="download-dock" aria-label="Управление загрузкой">
+      <div class="dock-status-icon" id="dock-status-icon"><svg class="icon"><use href="#i-download"/></svg></div>
+      <div class="dock-info"><div class="dock-status-line"><strong id="dock-title">Ваша музыка ждёт</strong><span class="progress-value" id="progress-value" hidden>0%</span></div><p id="dock-description">Добавьте треки в подборку, чтобы скачать их.</p><div class="progress-track" id="progress-track" role="progressbar" aria-label="Прогресс загрузки" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><div id="progress-fill"></div></div></div>
+      <button class="dock-folder icon-button" id="dock-folder" type="button" aria-label="Открыть папку загрузок" title="Открыть папку загрузок" disabled><svg class="icon"><use href="#i-folder"/></svg></button>
+      <div class="dock-divider"></div>
+      <button class="download-button" id="download-button" type="button" disabled><svg class="icon"><use href="#i-download"/></svg><span id="download-button-text">Скачать подборку</span><span class="download-count" id="download-count">0</span></button>
+      <button class="cancel-button" id="cancel-button" type="button" hidden><svg class="icon"><use href="#i-stop"/></svg><span>Остановить</span></button>
+    </footer>
+  </div>
+
+  <dialog class="modal settings-modal" id="settings-dialog" aria-labelledby="settings-title">
+    <form id="settings-form">
+      <header class="modal-heading"><div><span class="modal-eyebrow">ПОД ВАШ РИТМ</span><h2 id="settings-title">Настройки</h2></div><button class="icon-button" type="button" data-close="settings-dialog" aria-label="Закрыть настройки"><svg class="icon"><use href="#i-close"/></svg></button></header>
+      <div class="modal-body">
+        <div class="notice" id="settings-busy-notice" hidden><svg class="icon small"><use href="#i-info"/></svg><span>Настройки доступны для просмотра. Изменения — после завершения текущей операции.</span></div>
+        <fieldset class="quality-fieldset" id="quality-fieldset"><legend>Качество MP3</legend><p class="setting-description">Выберите желаемый битрейт. Итоговое качество зависит от источника.</p><div class="quality-options"><label><input type="radio" name="quality" value="128"><span><strong>128</strong><small>кбит/с</small></span></label><label><input type="radio" name="quality" value="192" checked><span><strong>192</strong><small>кбит/с</small></span></label><label><input type="radio" name="quality" value="256"><span><strong>256</strong><small>кбит/с</small></span></label><label><input type="radio" name="quality" value="320"><span><strong>320</strong><small>кбит/с</small></span></label></div></fieldset>
+        <div class="setting-block"><label class="setting-label" for="settings-folder">Куда сохранять</label><p class="setting-description">Введите путь и сохраните настройки. «Выбрать» применит папку сразу.</p><div class="folder-input-group"><input id="settings-folder" type="text" placeholder="Путь к папке" autocomplete="off" spellcheck="false"><button class="secondary-button" id="choose-folder" type="button"><svg class="icon small"><use href="#i-folder"/></svg>Выбрать</button></div></div>
+        <label class="switch-setting" for="settings-ascii"><span><strong>Латиница в именах файлов</strong><span>Заменять кириллицу и специальные символы.</span></span><span class="switch"><input id="settings-ascii" type="checkbox"><span class="switch-track"></span></span></label>
+        <p class="form-error" id="settings-error" role="alert" hidden></p>
+      </div>
+      <footer class="modal-footer"><button class="secondary-button" type="button" data-close="settings-dialog">Отмена</button><button class="primary-button" id="save-settings" type="submit">Сохранить настройки</button></footer>
+    </form>
+  </dialog>
+
+  <dialog class="modal logs-modal" id="logs-dialog" aria-labelledby="logs-title">
+    <header class="modal-heading"><div><span class="modal-eyebrow">БЕЗ СКРЫТЫХ ДЕТАЛЕЙ</span><h2 id="logs-title">Журнал событий</h2></div><button class="icon-button" type="button" data-close="logs-dialog" aria-label="Закрыть журнал"><svg class="icon"><use href="#i-close"/></svg></button></header>
+    <div class="logs-description">Сообщения приложения и подробности ошибок. Текст можно выделить и скопировать.</div>
+    <div class="logs-content" id="logs-content" tabindex="0" aria-label="Сообщения журнала"><p class="logs-empty">Здесь появятся сообщения о работе приложения.</p></div>
+    <footer class="modal-footer"><span class="logs-count" id="logs-count">0 событий</span><button class="secondary-button" type="button" data-close="logs-dialog">Закрыть</button></footer>
+  </dialog>
+
+  <dialog class="modal confirm-modal" id="confirm-dialog" aria-labelledby="confirm-title">
+    <header class="modal-heading"><div><span class="modal-eyebrow">НАЧНЁМ С ЧИСТОГО ЛИСТА?</span><h2 id="confirm-title">Очистить подборку?</h2></div><button class="icon-button" type="button" data-close="confirm-dialog" aria-label="Отмена"><svg class="icon"><use href="#i-close"/></svg></button></header>
+    <div class="modal-body"><p>Все треки будут убраны из подборки. Уже скачанные файлы останутся в вашей папке.</p></div>
+    <footer class="modal-footer"><button class="secondary-button" type="button" data-close="confirm-dialog" autofocus>Оставить</button><button class="danger-button" id="confirm-clear" type="button">Очистить</button></footer>
+  </dialog>
+
+  <div class="paste-menu" id="paste-menu" role="menu" hidden><button id="paste-search" type="button" role="menuitem"><svg class="icon small"><use href="#i-clipboard"/></svg>Вставить<span>Ctrl+V</span></button></div>
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="false"></div>
+  <div class="sr-only" id="state-announcement" role="status" aria-live="polite"></div>
+</body>
+</html>
